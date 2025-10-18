@@ -4,6 +4,89 @@ An interactive dashboard for real-time anomaly detection in industrial sensor da
 
 ---
 
+
+## Note : As we have directly commited to the main branch rather a feature branch, we are updating the changes in the readme file without a PR.
+
+```
+PR Summary:
+
+This is a major feature update that completes the core objective of the project, moving it into Phase 3. The dashboard is no longer a single-model prototype; it is now a fully functional, hybrid system that runs the VAE, ARIMA, and Kalman Filter models in parallel.
+
+This PR refactors the baseline model script to save trained models and upgrades the Flask backend to load and serve live anomaly scores from all three models simultaneously. The frontend now provides a real-time comparative view of how both classical and deep learning models interpret the sensor data, fulfilling the project's primary goal.
+
+Team Roles & Contributions:
+
+Member
+
+Role
+
+Work Contribution
+
+Karnala Santhan Kumar
+
+Author & System Integrator
+
+Led the development by refactoring the baseline_models.py script to train and save the classical models. He upgraded the core flask.py backend to handle the loading and parallel processing of all three models.
+
+Hanshika Varthini R
+
+Reviewer & Validation Engineer
+
+Reviewed the new architecture to ensure all models were integrated correctly without performance issues. She was responsible for validating the end-to-end workflow and confirming that all three gauges on the dashboard displayed accurate, live data.
+
+Key Changes:
+
+1. baseline_models.py (Refactored from baseline_anamoly_detection.py)
+
+Change of Purpose: The script no longer just performs analysis. Its new role is to train and serialize the baseline models so they can be loaded instantly by the application.
+
+Model Training: The script now trains the Kalman Filter and fits the ARIMA model on the "normal" training data (the first 80% of the dataset).
+
+Model Saving:
+
+The trained Kalman Filter object is saved to kf_model.pkl.
+
+The ARIMA configuration (its order and a calculated anomaly threshold) is saved to arima_config.pkl.
+
+2. flask.py (Major Upgrade)
+
+Loads All Models: On startup, the load_dependencies function now loads vae_model.h5, kf_model.pkl, and arima_config.pkl.
+
+Parallel Inference in API (/api/anomaly-scores): This endpoint has been completely rebuilt to:
+
+Run VAE: Performs multivariate anomaly detection on a window of all sensors.
+
+Run Kalman Filter: Applies the loaded filter to the target sensor's history and calculates an anomaly score based on the error.
+
+Run ARIMA: Performs a live, rolling forecast on the target sensor and calculates an anomaly score based on the prediction error.
+
+Comparative Scores: The API response now includes three distinct keys: vae, kalman, and arima, each with a normalized score. This directly feeds the three gauges on the dashboard.
+
+How to Test and Verify:
+
+IMPORTANT: First, rename the old file baseline_anamoly_detection.py to baseline_models.py.
+
+Run the model preparation scripts in order to ensure all model files are created:
+
+# 1. Generate the data if you haven't already
+python eda.py
+
+# 2. Train and save the VAE model
+python vae_model.py
+
+# 3. Train and save the NEW baseline models
+python baseline_models.py
+
+
+After this step, you should have vae_model.h5, kf_model.pkl, and arima_config.pkl in your directory.
+
+Launch the fully integrated dashboard:
+
+python flask.py
+```
+
+## The model files are yet to be pushed! but the code changes are reflected with proper changes!
+
 ## Table of Contents
 
 - [About The Project](#about-the-project)
@@ -131,3 +214,5 @@ Following these instructions will get a local copy of the project up for running
     Open your web browser and navigate to `http://127.0.0.1:5001`. You should see the live dashboard interface.
 
 ---
+
+
