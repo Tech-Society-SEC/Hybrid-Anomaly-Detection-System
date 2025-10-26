@@ -84,8 +84,8 @@ Following these instructions will get a local copy of the project up for running
 
 1.  **Clone the repository:**
     ```sh
-    git clone [https://github.com/your-username/hybrid-anomaly-detection.git](https://github.com/your-username/hybrid-anomaly-detection.git)
-    cd hybrid-anomaly-detection
+    git clone https://github.com/Tech-Society-SEC/Hybrid-Anomaly-Detection-System.git
+    cd Hybrid-Anomaly-Detection-System
     ```
 
 2.  **Create and activate a virtual environment (recommended):**
