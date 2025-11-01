@@ -215,4 +215,14 @@ Following these instructions will get a local copy of the project up for running
 
 ---
 
+## Run the Jupyter Instance using this docker command (only for customized docker image build) :
+```
+sudo docker run --runtime=nvidia --gpus all --shm-size=8g -it \
+-p 8888:8888 \
+-v /home/santhankumar/Desktop/notebooks:/downloads \
+--workdir=/downloads \
+kaggle-image \
+bash -c "jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --no-browser"
+```
+
 
