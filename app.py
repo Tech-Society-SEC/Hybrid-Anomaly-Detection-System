@@ -14,6 +14,15 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+@keras.utils.register_keras_serializable()
+class Sampling(keras.layers.Layer):
+    """Reparameterization trick layer used in the VAE encoder."""
+
+    def call(self, inputs):
+        z_mean, z_log_var = inputs
+        epsilon = tf.random.normal(shape=tf.shape(z_mean))
+        return z_mean + tf.exp(0.5 * z_log_var) * epsilon
+
 # ============================================================================
 # INITIALIZE FLASK APP
 # ============================================================================
@@ -64,8 +73,53 @@ def load_models():
     print("✓ Kalman Filter loaded")
     
     # Load VAE model
-    models['vae'] = keras.models.load_model('trained_models/vae_model.h5', compile=False)
-    print("✓ VAE model loaded")
+    vae_model_paths = [
+        'trained_models/vae_model.h5',
+        'trained_models/vae_model.keras'
+    ]
+    vae_model_path = next((path for path in vae_model_paths if os.path.exists(path)), None)
+    models['vae'] = None
+
+    custom_objects = {'Sampling': Sampling}
+
+    if vae_model_path is not None:
+        try:
+            models['vae'] = keras.models.load_model(
+                vae_model_path,
+                compile=False,
+                custom_objects=custom_objects
+            )
+            print(f"✓ VAE model loaded ({vae_model_path})")
+        except TypeError as e:
+            if "class 'VAE'" in str(e):
+                print("ℹ Detected custom VAE class serialization; falling back to encoder/decoder weights.")
+            else:
+                raise
+    else:
+        print("ℹ VAE model file not found in expected locations. Trying encoder/decoder weights.")
+
+    if models['vae'] is None:
+        encoder_path = 'trained_models/vae_encoder.keras'
+        decoder_path = 'trained_models/vae_decoder.keras'
+        if not (os.path.exists(encoder_path) and os.path.exists(decoder_path)):
+            raise FileNotFoundError(
+                "Unable to load VAE model. Provide either one of the following files: "
+                + ", ".join(vae_model_paths)
+                + " or both encoder/decoder files: "
+                + f"{encoder_path}, {decoder_path}"
+            )
+        models['vae_encoder'] = keras.models.load_model(
+            encoder_path,
+            compile=False,
+            custom_objects=custom_objects
+        )
+        models['vae_decoder'] = keras.models.load_model(
+            decoder_path,
+            compile=False,
+            custom_objects=custom_objects
+        )
+        print(f"✓ VAE encoder loaded ({encoder_path})")
+        print(f"✓ VAE decoder loaded ({decoder_path})")
     
     # Load VAE config
     with open('trained_models/vae_config.pkl', 'rb') as f:
@@ -179,7 +233,17 @@ def get_vae_score_and_explanation(window_data):
             window_data = np.expand_dims(window_data, axis=0)
         
         # Get reconstruction
-        reconstructed = vae_model.predict(window_data, verbose=0)
+        if vae_model is not None:
+            reconstructed = vae_model.predict(window_data, verbose=0)
+        else:
+            vae_encoder = models['vae_encoder']
+            vae_decoder = models['vae_decoder']
+            latent_outputs = vae_encoder.predict(window_data, verbose=0)
+            if isinstance(latent_outputs, (list, tuple)):
+                z = latent_outputs[-1]
+            else:
+                z = latent_outputs
+            reconstructed = vae_decoder.predict(z, verbose=0)
         
         # Calculate overall anomaly score (MSE)
         anomaly_score = float(np.mean(np.square(window_data - reconstructed)))
