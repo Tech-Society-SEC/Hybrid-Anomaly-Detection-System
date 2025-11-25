@@ -198,3 +198,56 @@ For questions or help, open an issue or contact the repository maintainers via t
 
 ## Acknowledgements
 - Inspired by standard anomaly detection research and open-source toolkits.
+
+
+## Docker Instructions :
+
+
+Files Created:
+Dockerfile - Multi-stage build configuration
+docker-compose.yml - Orchestration with volume mounts for hot-reload
+.dockerignore - Optimize build context
+docker-deploy.sh - Interactive deployment script (Linux/Mac)
+docker-deploy.bat - Interactive deployment script (Windows)
+DOCKER_DEPLOYMENT.md - Complete deployment guide
+Updated README.md - Added Docker quick start
+
+
+🚀 Usage:
+Windows :
+```
+# Run interactive menu
+.\docker-deploy.bat
+```
+Linux/Mac :
+```
+chmod +x docker-deploy.sh
+./docker-deploy.sh
+```
+Manual Commands :
+```
+# Build and start
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
+```
+
+✨ Key Features:
+✅ Cross-platform - Works identically on Windows, Linux, macOS
+✅ Hot-reload - Code changes reflect immediately (no rebuild)
+✅ Health checks - Automatic container monitoring
+✅ Volume mounts - Persistent model files and data
+✅ Interactive scripts - Easy deployment with menus
+✅ Production-ready - Includes Gunicorn configuration
+
+🔄 Development Workflow:
+Clone repo on any device
+Run docker-compose up -d
+Edit code (auto-reloads)
+Access at http://localhost:5000
+No Python/TensorFlow installation needed! Docker handles everything.
+
