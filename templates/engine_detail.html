@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Engine {{ engine_id }} - Detailed Analysis</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/css/engine_detail.css" />
+</head>
+<body>
+  <header class="detail-header">
+    <div class="header-left">
+      <a href="/" class="back-btn"><i class="fa fa-arrow-left"></i> Dashboard</a>
+      <h1>Engine {{ engine_id }} — Comprehensive Analysis</h1>
+    </div>
+    <div class="header-right">
+      <button class="btn-export" onclick="exportReport()"><i class="fa fa-download"></i> Export Report</button>
+    </div>
+  </header>
+
+  <main class="detail-layout">
+    <aside class="summary-panel">
+      <div class="summary-card" id="healthCard">
+        <h3>Health Score</h3>
+        <div class="health-gauge">
+          <canvas id="healthGauge"></canvas>
+          <div class="gauge-value" id="healthValue">--</div>
+        </div>
+        <div class="health-status" id="healthStatus">Loading...</div>
+      </div>
+      <div class="summary-card">
+        <h3>Key Metrics</h3>
+        <div class="metric-row"><span>Total Cycles</span><strong id="totalCycles">--</strong></div>
+        <div class="metric-row"><span>Anomalies Detected</span><strong id="totalAnomalies">--</strong></div>
+        <div class="metric-row"><span>Anomaly Rate</span><strong id="anomalyRate">--</strong></div>
+        <div class="metric-row"><span>Avg VAE Score</span><strong id="avgVae">--</strong></div>
+      </div>
+      <div class="summary-card">
+        <h3>Top Contributing Sensors</h3>
+        <div id="topSensorsList" class="sensor-list"></div>
+      </div>
+    </aside>
+
+    <section class="charts-panel">
+      <div class="chart-section">
+        <h3>Anomaly Timeline & Model Scores</h3>
+        <div class="chart-container"><canvas id="timelineChart"></canvas></div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-section">
+          <h3>Score Distribution</h3>
+          <div class="chart-container"><canvas id="scoreDistChart"></canvas></div>
+        </div>
+        <div class="chart-section">
+          <h3>Sensor Impact Heatmap</h3>
+          <div class="chart-container"><canvas id="sensorHeatmap"></canvas></div>
+        </div>
+      </div>
+      <div class="anomaly-detail-section">
+        <h3>Anomaly Events & Root Causes</h3>
+        <div id="anomalyEventsList" class="event-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const ENGINE_ID = {{ engine_id }};
+  </script>
+  <script src="/static/js/engine_detail.js"></script>
+</body>
+</html>

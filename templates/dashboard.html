@@ -1,0 +1,108 @@
+<!-- Revised dashboard.html with SHAP display -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hybrid AI Sentinel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/dashboard.css" />
+</head>
+<body>
+    <header class="app-header" aria-label="Application Header">
+        <div class="brand"><i class="fa fa-shield-alt"></i><span>Hybrid AI Sentinel</span></div>
+        <div class="controls" aria-label="Simulation Controls">
+            <label class="engine-input"><span>Engine</span><input type="number" id="engineInput" value="1" min="1" aria-label="Engine ID"/></label>
+            <button class="btn btn-primary" onclick="startSim()" aria-label="Start Simulation"><i class="fa fa-play"></i><span>Start</span></button>
+            <button class="btn btn-danger" onclick="stopSim()" aria-label="Stop Simulation"><i class="fa fa-stop"></i><span>Stop</span></button>
+            <button class="btn btn-neutral" onclick="resetSim()" aria-label="Reset Simulation"><i class="fa fa-rotate"></i><span>Reset</span></button>
+        </div>
+    </header>
+
+    <main class="layout">
+        <section class="sidebar" aria-label="Status Summary">
+            <div class="card stat-card">
+                <h3>Current Engine</h3>
+                <div id="engineId" class="stat-value" style="cursor:pointer;" onclick="window.location.href='/engine/'+this.innerText" title="Click for detailed analysis">-</div>
+            </div>
+            <div class="card stat-card">
+                <h3>Cycle</h3>
+                <div id="cycleCount" class="stat-value">-</div>
+            </div>
+            <div class="card stat-card">
+                <h3>Buffer</h3>
+                <div id="bufferStatus" class="stat-value">0/30</div>
+            </div>
+            <div class="card stat-card small">
+                <h3>Status</h3>
+                <div id="sysStatus" class="status-dot ok" aria-live="polite">Ready</div>
+            </div>
+            <div class="card sensor-feed" aria-label="Live Sensor Feed">
+                <div class="card-header"><h3>Sensors (latest)</h3></div>
+                <div class="sensor-table-wrapper">
+                    <table id="sensorTable" class="sensor-table">
+                        <thead><tr id="sensorHeaderRow"><th>Cycle</th></tr></thead>
+                        <tbody id="sensorTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card completed-engines-card" aria-label="Completed Engines Archive">
+                <div class="card-header">
+                    <h3><i class="fa fa-archive"></i> Completed Engines</h3>
+                </div>
+                <div id="completedEnginesList" class="completed-list">
+                    <div style="color:#8b949e;font-size:0.85rem;text-align:center;padding:1rem;">No completed engines yet</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="main-panel" aria-label="Charts">
+            <div class="card chart-card" aria-label="Anomaly Timeline">
+                <div class="card-header"><h3>Anomaly Timeline</h3><span class="sub">VAE Reconstruction Error</span></div>
+                <div style="position:relative;height:280px;"><canvas id="mainChart" aria-label="Anomaly score line chart"></canvas></div>
+            </div>
+            <div class="grid-2">
+                <div class="card chart-card" aria-label="Reconstruction">
+                    <div class="card-header"><h3>Actual vs Expected</h3><span class="sub" id="reconMeta">Top Sensors</span></div>
+                    <div style="position:relative;height:200px;"><canvas id="reconstructionChart" aria-label="Reconstruction comparison chart"></canvas></div>
+                </div>
+                <div class="card chart-card" aria-label="Model Confidence">
+                    <div class="card-header"><h3>Model Confidence</h3></div>
+                    <div style="position:relative;height:200px;"><canvas id="confidenceChart" aria-label="Confidence doughnut chart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="xai-panel" aria-label="Explainability Insights">
+            <div id="anomalyAlert" class="alert normal" aria-live="polite">
+                <i class="fa fa-check-circle"></i>
+                <div class="alert-text"><strong>SYSTEM NORMAL</strong></div>
+            </div>
+            <div class="tabs" role="tablist">
+                <button class="tab active" data-tab="overview" role="tab" aria-selected="true">Overview</button>
+                <button class="tab" data-tab="fingerprint" role="tab" aria-selected="false">Fingerprint</button>
+                <button class="tab" data-tab="features" role="tab" aria-selected="false">Features</button>
+            </div>
+            <div class="tab-panels">
+                <div class="tab-panel active" id="tab-overview" role="tabpanel" aria-label="Overview">
+                    <div class="card mini" id="vaeAnalysis" style="display:none"><h4>VAE Analysis</h4><div id="vaeDetails" class="mono">-</div></div>
+                    <div class="card mini" id="ensembleStats"><h4>Ensemble Vote</h4><div id="ensembleDetails" class="mono">-</div></div>
+                </div>
+                <div class="tab-panel" id="tab-fingerprint" role="tabpanel" aria-label="Fingerprint">
+                    <div class="card mini"><h4>Impact Radar</h4><div style="position:relative;height:220px;"><canvas id="radarChart"></canvas></div></div>
+                    <div class="card mini"><h4>Top Contributions (Bar)</h4><div style="position:relative;height:220px;"><canvas id="contribChart"></canvas></div></div>
+                </div>
+                <div class="tab-panel" id="tab-features" role="tabpanel" aria-label="Features">
+                    <div id="evidenceList" class="feature-list"></div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="app-footer" aria-label="Footer"><span>© Demo – Hybrid AI Sentinel</span></footer>
+
+    <script src="/static/js/dashboard.js" defer></script>
+</body>
+</html>

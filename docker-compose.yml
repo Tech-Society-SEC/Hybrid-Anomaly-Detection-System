@@ -1,12 +1,46 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  cmpas-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cmpas-anomaly-detection
     ports:
       - "5000:5000"
     volumes:
-      - .:/app
+      # Mount code for hot-reload during development
+      - ./app.py:/app/app.py
+      - ./templates:/app/templates
+      - ./static:/app/static
+      # Mount model files (persistent across container restarts)
+      - ./best_vae.keras:/app/best_vae.keras
+      - ./vae_encoder.keras:/app/vae_encoder.keras
+      - ./vae_decoder.keras:/app/vae_decoder.keras
+      - ./vae_model.keras:/app/vae_model.keras
+      - ./vae_config.pkl:/app/vae_config.pkl
+      - ./kalman_model.pkl:/app/kalman_model.pkl
+      - ./arima_models.pkl:/app/arima_models.pkl
+      - ./normal_windows.npy:/app/normal_windows.npy
+      - ./train_windows.npy:/app/train_windows.npy
+      - ./val_windows.npy:/app/val_windows.npy
+      - ./window_engine_ids.npy:/app/window_engine_ids.npy
+      - ./test_scaled.pkl:/app/test_scaled.pkl
     environment:
       - FLASK_ENV=development
-    command: python app.py
+      - FLASK_DEBUG=1
+      - TF_CPP_MIN_LOG_LEVEL=2
+      - TF_ENABLE_ONEDNN_OPTS=0
+    restart: unless-stopped
+    networks:
+      - cmpas-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  cmpas-network:
+    driver: bridge
